@@ -1,3 +1,4 @@
+# this is the sole file that should be run. it has the class,setup, and main too. all in one file
 import pygame
 import math
 from queue import PriorityQueue
