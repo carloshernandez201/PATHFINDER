@@ -1,5 +1,6 @@
 import pygame
 import sys
+import ye
 
 pygame.init()
 
@@ -79,9 +80,11 @@ def main():
                 if medium_button.is_hovered(pos):
                     grid_size = (50, 50)
                     running = False
+                    ye.main(WIN, WIDTH, HEIGHT, grid_size[0], grid_size[1])
                 elif large_button.is_hovered(pos):
                     grid_size = (100, 100)
                     running = False
+                    ye.main(WIN, WIDTH, HEIGHT, grid_size[0], grid_size[1])
 
         medium_button.draw(WIN)
         large_button.draw(WIN)
