@@ -1,4 +1,3 @@
-# this is the sole file that should be run. it has the class,setup, and main too. all in one file
 import pygame
 import math
 from queue import PriorityQueue
@@ -112,8 +111,8 @@ def get_clicked_pos(pos, rows, cols, width, height):
     return col, row
 
 def main(win, width, height):
-    ROWS = 80 # You can adjust the number of rows
-    COLS =  110 # Calculate columns based on width to height ratio or as needed
+    ROWS = 82 # You can adjust the number of rows
+    COLS =  112 # Calculate columns based on width to height ratio or as needed
 
     grid = make_grid(ROWS, COLS, width)
 
