@@ -1,6 +1,9 @@
 import pygame
 import math
 from queue import PriorityQueue
+
+from pygame.examples import grid
+
 WIDTH = 1500 # Width of the window
 HEIGHT = 860 # Height of the window, making it rectangular
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))  # Create a window with specified dimensions
@@ -74,15 +77,17 @@ class Spot:
 
     def update_neighbors(self, grid):
         self.neighbors = []
+        rowChange = [1, -1, 0, 0]
+        colChange = [0, 0, 1, -1]
         # Check neighbors in the grid (down, up, left, right)
-        if self.row < self.total_rows - 1 and not grid[self.row + 1][self.col].is_barrier():  # Down
-            self.neighbors.append(grid[self.row + 1][self.col])
-        if self.row > 0 and not grid[self.row - 1][self.col].is_barrier():  # Up
-            self.neighbors.append(grid[self.row - 1][self.col])
-        if self.col < self.total_cols - 1 and not grid[self.row][self.col + 1].is_barrier():  # Right
-            self.neighbors.append(grid[self.row][self.col + 1])
-        if self.col > 0 and not grid[self.row][self.col - 1].is_barrier():  # Left
-            self.neighbors.append(grid[self.row][self.col - 1])
+        for i in range(4):
+            neighborRow = self.row + rowChange[i]
+            neighborCol = self.col + colChange[i]
+            if self.is_valid_spot(neighborRow, neighborCol) and not grid[neighborRow][neighborCol].is_barrier():
+                self.neighbors.append(grid[neighborRow][neighborCol])
+
+    def is_valid_spot(self, row, col):
+        return 0 <= row < self.total_rows and 0 <= col < self.total_cols
 
     def __lt__(self, other):
         pass
