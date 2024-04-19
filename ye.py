@@ -1,6 +1,9 @@
+import random
+
 import pygame
 import math
 from queue import PriorityQueue
+from pygame.examples import grid
 WIDTH = 1500 # Width of the window
 HEIGHT = 860 # Height of the window, making it rectangular
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))  # Create a window with specified dimensions
@@ -72,9 +75,6 @@ class Spot:
     def draw(self, win):
         pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.width))
 
-    def get_weight(self):
-        return 1  # Spots have 1 weight by default
-
     def update_neighbors(self, grid):
         self.neighbors = []
         rowChange = [1, -1, 0, 0]
@@ -85,6 +85,9 @@ class Spot:
             neighborCol = self.col + colChange[i]
             if self.is_valid_spot(neighborRow, neighborCol) and not grid[neighborRow][neighborCol].is_barrier():
                 self.neighbors.append(grid[neighborRow][neighborCol])
+
+    def is_valid_spot(self, row, col):
+        return 0 <= row < self.total_rows and 0 <= col < self.total_cols
 
     def __lt__(self, other):
         pass
@@ -179,19 +182,18 @@ def dijkstra(draw, grid, start, end):
     g_score = {spot: float("inf") for row in grid for spot in row}
     g_score[start] = 0
 
-    open_set_hash = {start}  # Set of visited nodes
+    open_set_hash = {start}
 
     while not open_set.empty():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
 
-        current = open_set.get()[2]  # Removes and returns the minimum from the priority queue
+        current = open_set.get()[2]
         open_set_hash.remove(current)
 
         if current == end:
             reconstruct_path(came_from, end, draw)
-            start.make_start()
             end.make_end()
             return True
 
@@ -228,9 +230,13 @@ def main(win, width, height, ROWS, COLS):
 
     start = grid[0][0]  # Top-left corner
     start.make_start()
-    end = grid[10][10]  # Bottom-right corner
+    end = grid[random.randint(0, 30)][30]  # Bottom-right corner
     end.make_end()
-
+    for i in range(2, ROWS - 1):
+        for j in range(2, COLS - 1):
+            if random.randint(0, 2) == 1 and not grid[i][j].is_end():
+                grid[i][j].make_barrier()
+                
     run = True
     while run:
         draw(win, grid, ROWS, COLS, width, height)

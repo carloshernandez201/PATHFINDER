@@ -9,6 +9,7 @@ WIDTH = 1500
 HEIGHT = 860
 FONT_BIG = pygame.font.Font(None, 40)  #BIG IS FOR HEADING, SMALL IS FOR THE BUTTON
 FONT_SMALL = pygame.font.Font(None, 32)
+GREEN = (0, 255, 0)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 GRAY = (200, 200, 200)
@@ -62,6 +63,8 @@ class Button:
 
 def main():
     running = True
+
+    random_button = Button(BUTTON_COLOR, 650, 500, 200, 100, 'Random Barriers')
     medium_button = Button(BUTTON_COLOR, 450, 300, 250, 100, 'Small (55x75)')
     large_button = Button(BUTTON_COLOR, 800, 300, 250, 100, 'Large (110x150)')
 
@@ -85,7 +88,13 @@ def main():
                     grid_size = (100, 100)
                     running = False
                     ye.main(WIN, WIDTH, HEIGHT, grid_size[0], grid_size[1])
+               # elif random_button.is_hovered(pos):
+                #    random_button.color = GREEN
+                #    current_color = random_button.color
+                #    random_button.draw(WIN)
+                #   pygame.display.update()
 
+        random_button.draw(WIN)
         medium_button.draw(WIN)
         large_button.draw(WIN)
 
