@@ -1,6 +1,8 @@
 import pygame
 import sys
 import ye
+from tkinter import *
+from tkinter import messagebox
 
 pygame.init()
 
@@ -64,6 +66,7 @@ class Button:
 def main():
     running = True
 
+    about_button = Button(BUTTON_COLOR, 600, 650, 300, 100, 'About Our Program')
     random_button = Button(BUTTON_COLOR, 600, 500, 300, 100, 'Random Barriers (50x50)')
     medium_button = Button(BUTTON_COLOR, 450, 300, 250, 100, 'Small (50x50)')
     large_button = Button(BUTTON_COLOR, 800, 300, 250, 100, 'Large (100x100)')
@@ -84,20 +87,49 @@ def main():
                 if random_button.is_hovered(pos):
                     grid_size = (50, 50)
                     running = False
+                    WIN.fill(GRAY)
+                    draw_text(f"Grid of {grid_size[0]} rows and {grid_size[1]} columns is set. Random barriers enabled.", FONT_BIG, BLACK, WIN,
+                              WIDTH // 2,
+                              HEIGHT // 2)
+                    pygame.display.flip()
+                    pygame.time.wait(3000)
                     barriers = True
                     ye.main(WIN, WIDTH, HEIGHT, grid_size[0], grid_size[1], barriers)
                 elif medium_button.is_hovered(pos):
                     grid_size = (50, 50)
                     running = False
+                    WIN.fill(GRAY)
+                    draw_text(f"Grid of {grid_size[0]} rows and {grid_size[1]} columns is set.", FONT_BIG, BLACK, WIN,
+                              WIDTH // 2,
+                              HEIGHT // 2)
+                    pygame.display.flip()
+                    pygame.time.wait(3000)
                     barriers = False
                     ye.main(WIN, WIDTH, HEIGHT, grid_size[0], grid_size[1], barriers)
                 elif large_button.is_hovered(pos):
                     grid_size = (100, 100)
                     running = False
+                    WIN.fill(GRAY)
+                    draw_text(f"Grid of {grid_size[0]} rows and {grid_size[1]} columns is set.", FONT_BIG, BLACK, WIN,
+                              WIDTH // 2,
+                              HEIGHT // 2)
+                    pygame.display.flip()
+                    pygame.time.wait(3000)
                     barriers = False
                     ye.main(WIN, WIDTH, HEIGHT, grid_size[0], grid_size[1], barriers)
+                elif about_button.is_hovered(pos):
+                    messagebox.showinfo('About', 'Dijkstra\'s algorithm and A* are both pathfinding '
+                                                 'algorithms used in graph traversal. Dijkstra\'s guarantees the shortest'
+                                                 ' path in weighted graphs by exploring all possible paths. A* enhances'
+                                                 ' Dijkstra\'s by incorporating a heuristic to estimate the cost to reach'
+                                                 ' the goal, prioritizing nodes that are likely on the shortest path. '
+                                                 'A* is more efficient in finding the shortest'
+                                                 ' path in terms of both time and space complexity, especially in scenarios'
+                                                 ' with a clear goal.')
+                    barriers = True
 
 
+        about_button.draw(WIN)
         random_button.draw(WIN)
         medium_button.draw(WIN)
         large_button.draw(WIN)
@@ -105,11 +137,7 @@ def main():
         pygame.display.update()
 
 
-    WIN.fill(GRAY)
-    draw_text(f"Grid of {grid_size[0]} rows and {grid_size[1]} columns is set.", FONT_BIG, BLACK, WIN, WIDTH // 2,
-              HEIGHT // 2)
-    pygame.display.flip()
-    pygame.time.wait(3000)
+
 
 
 if __name__ == "__main__":
