@@ -198,9 +198,9 @@ def main(win, width, height, ROWS, COLS, barriers):
     end.make_end()
 
     if barriers:
-        for i in range(1, ROWS - 1):
-            for j in range(1, COLS - 1):
-                if random.randint(0, 2) == 1 and not grid[i][j].is_end():
+        for i in range(0, ROWS - 1):
+            for j in range(0, COLS - 1):
+                if random.randint(0, 2) == 1 and not grid[i][j].is_end() and (i != j or i != 0):
                     grid[i][j].make_barrier()
 
 

@@ -67,7 +67,7 @@ def main():
     running = True
 
     about_button = Button(BUTTON_COLOR, 600, 650, 300, 100, 'About Our Program')
-    random_button = Button(BUTTON_COLOR, 600, 500, 300, 100, 'Random Barriers (50x50)')
+    random_button = Button(BUTTON_COLOR, 600, 500, 300, 100, 'Random Barriers (54x96)')
     medium_button = Button(BUTTON_COLOR, 450, 300, 250, 100, 'Small (54x96)')
     large_button = Button(BUTTON_COLOR, 800, 300, 250, 100, 'Large (108x192)')
 
@@ -85,14 +85,14 @@ def main():
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if random_button.is_hovered(pos):
-                    grid_size = (50, 50)
+                    grid_size = (54, 96)
                     running = False
                     WIN.fill(GRAY)
                     draw_text(f"Grid of {grid_size[0]} rows and {grid_size[1]} columns is set. Random barriers enabled.", FONT_BIG, BLACK, WIN,
                               WIDTH // 2,
                               HEIGHT // 2)
                     pygame.display.flip()
-                    pygame.time.wait(3000)
+                    pygame.time.wait(2000)
                     barriers = True
                     ye.main(WIN, WIDTH, HEIGHT, grid_size[0], grid_size[1], barriers)
                 elif medium_button.is_hovered(pos):
@@ -103,7 +103,7 @@ def main():
                               WIDTH // 2,
                               HEIGHT // 2)
                     pygame.display.flip()
-                    pygame.time.wait(3000)
+                    pygame.time.wait(2000)
                     barriers = False
                     ye.main(WIN, WIDTH, HEIGHT, grid_size[0], grid_size[1], barriers)
                 elif large_button.is_hovered(pos):
@@ -114,7 +114,7 @@ def main():
                               WIDTH // 2,
                               HEIGHT // 2)
                     pygame.display.flip()
-                    pygame.time.wait(3000)
+                    pygame.time.wait(2000)
                     barriers = False
                     ye.main(WIN, WIDTH, HEIGHT, grid_size[0], grid_size[1], barriers)
                 elif about_button.is_hovered(pos):
@@ -127,8 +127,6 @@ def main():
                                                  ' path in terms of both time and space complexity, especially in scenarios'
                                                  ' with a clear goal. When in the program, press SPACE for Dijkstra or'
                                                  ' press 1 for A*.')
-                    barriers = True
-
 
         about_button.draw(WIN)
         random_button.draw(WIN)
@@ -136,10 +134,6 @@ def main():
         large_button.draw(WIN)
 
         pygame.display.update()
-
-
-
-
 
 if __name__ == "__main__":
     main()
