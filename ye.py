@@ -298,7 +298,3 @@ def main(win, width, height, ROWS, COLS, barriers):
                     grid = make_grid(ROWS, width)'''
 
     pygame.quit()
-
-
-if __name__ == "__main__":
-    main(WIN, WIDTH, HEIGHT)
