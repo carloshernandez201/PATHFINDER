@@ -62,6 +62,18 @@ class Button:
     def is_hovered(self, pos):
         return self.x < pos[0] < self.x + self.width and self.y < pos[1] < self.y + self.height
 
+def switch_to_board(grid_rows, grid_cols, barriers, water):
+    WIN.fill(GRAY)
+    text = f"Grid of {grid_rows} rows and {grid_cols} columns is set."
+    if barriers:
+        text += " Random barriers are enabled."
+    draw_text(text, FONT_BIG,
+              BLACK, WIN,
+              WIDTH // 2,
+              HEIGHT // 2)
+    pygame.display.flip()
+    pygame.time.wait(2000)
+    ye.main(WIN, WIDTH, HEIGHT, grid_rows, grid_cols, barriers, water)
 
 def main():
     running = True
@@ -85,38 +97,14 @@ def main():
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if random_button.is_hovered(pos):
-                    grid_size = (54, 96)
                     running = False
-                    WIN.fill(GRAY)
-                    draw_text(f"Grid of {grid_size[0]} rows and {grid_size[1]} columns is set. Random barriers enabled.", FONT_BIG, BLACK, WIN,
-                              WIDTH // 2,
-                              HEIGHT // 2)
-                    pygame.display.flip()
-                    pygame.time.wait(2000)
-                    barriers = True
-                    ye.main(WIN, WIDTH, HEIGHT, grid_size[0], grid_size[1], barriers)
+                    switch_to_board(54, 96, True, True)
                 elif medium_button.is_hovered(pos):
-                    grid_size = (54, 96)
                     running = False
-                    WIN.fill(GRAY)
-                    draw_text(f"Grid of {grid_size[0]} rows and {grid_size[1]} columns is set.", FONT_BIG, BLACK, WIN,
-                              WIDTH // 2,
-                              HEIGHT // 2)
-                    pygame.display.flip()
-                    pygame.time.wait(2000)
-                    barriers = False
-                    ye.main(WIN, WIDTH, HEIGHT, grid_size[0], grid_size[1], barriers)
+                    switch_to_board(54, 96, False, False)
                 elif large_button.is_hovered(pos):
-                    grid_size = (108, 192)
                     running = False
-                    WIN.fill(GRAY)
-                    draw_text(f"Grid of {grid_size[0]} rows and {grid_size[1]} columns is set.", FONT_BIG, BLACK, WIN,
-                              WIDTH // 2,
-                              HEIGHT // 2)
-                    pygame.display.flip()
-                    pygame.time.wait(2000)
-                    barriers = False
-                    ye.main(WIN, WIDTH, HEIGHT, grid_size[0], grid_size[1], barriers)
+                    switch_to_board(108, 192, False, False)
                 elif about_button.is_hovered(pos):
                     messagebox.showinfo('About', 'Dijkstra\'s algorithm and A* are both pathfinding '
                                                  'algorithms used in graph traversal. Dijkstra\'s guarantees the shortest'
