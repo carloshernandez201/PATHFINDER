@@ -4,8 +4,8 @@ import pygame
 import math
 from queue import PriorityQueue
 from pygame.examples import grid
-WIDTH = 1500 # Width of the window
-HEIGHT = 860 # Height of the window, making it rectangular
+WIDTH = 1728
+HEIGHT = 972
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))  # Create a window with specified dimensions
 pygame.display.set_caption("A* Path Finding Algorithm")
 
@@ -92,9 +92,9 @@ class Spot:
     def __lt__(self, other):
         pass
 
-def make_grid(rows, cols, width):
+def make_grid(rows, cols, width, height):
     grid = []
-    gap = width // cols  # Calculate gap based on the number of columns and total width
+    gap = min(width // cols, height // rows)
     for i in range(rows):
         grid.append([])
         for j in range(cols):  # Use cols for the inner loop
@@ -103,7 +103,7 @@ def make_grid(rows, cols, width):
     return grid
 
 def draw_grid(win, rows, cols, width, height):
-    gap = width // cols
+    gap = min(width // cols, height // rows)
     for i in range(rows + 1):
         pygame.draw.line(win, GREY, (0, i * gap), (width, i * gap))  # Draw horizontal lines
     for j in range(cols + 1):
@@ -118,7 +118,7 @@ def draw(win, grid, rows, cols, width, height):
     pygame.display.update()
 
 def get_clicked_pos(pos, rows, cols, width, height):
-    gap = width // cols
+    gap = min(width // cols, height // rows)
     y, x = pos
     row = y // gap
     col = x // gap
@@ -227,11 +227,11 @@ def main(win, width, height, ROWS, COLS, barriers):
     # ROWS = 55 # You can adjust the number of rows
     # COLS =  80 # Calculate columns based on width to height ratio or as needed
 
-    grid = make_grid(ROWS, COLS, width)
+    grid = make_grid(ROWS, COLS, width, height)
 
     start = grid[0][0]  # Top-left corner
     start.make_start()
-    end = grid[random.randint(0, 30)][30]  # Bottom-right corner
+    end = grid[random.randint(30, ROWS - 1)][random.randint(30, COLS - 1)]
     end.make_end()
 
     if barriers:

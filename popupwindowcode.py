@@ -7,8 +7,8 @@ from tkinter import messagebox
 pygame.init()
 
 
-WIDTH = 1500
-HEIGHT = 860
+WIDTH = 1728
+HEIGHT = 972
 FONT_BIG = pygame.font.Font(None, 40)  #BIG IS FOR HEADING, SMALL IS FOR THE BUTTON
 FONT_SMALL = pygame.font.Font(None, 32)
 GREEN = (0, 255, 0)
@@ -68,8 +68,8 @@ def main():
 
     about_button = Button(BUTTON_COLOR, 600, 650, 300, 100, 'About Our Program')
     random_button = Button(BUTTON_COLOR, 600, 500, 300, 100, 'Random Barriers (50x50)')
-    medium_button = Button(BUTTON_COLOR, 450, 300, 250, 100, 'Small (50x50)')
-    large_button = Button(BUTTON_COLOR, 800, 300, 250, 100, 'Large (100x100)')
+    medium_button = Button(BUTTON_COLOR, 450, 300, 250, 100, 'Small (54x96)')
+    large_button = Button(BUTTON_COLOR, 800, 300, 250, 100, 'Large (108x192)')
 
     while running:
         WIN.fill(GRAY)
@@ -96,7 +96,7 @@ def main():
                     barriers = True
                     ye.main(WIN, WIDTH, HEIGHT, grid_size[0], grid_size[1], barriers)
                 elif medium_button.is_hovered(pos):
-                    grid_size = (50, 50)
+                    grid_size = (54, 96)
                     running = False
                     WIN.fill(GRAY)
                     draw_text(f"Grid of {grid_size[0]} rows and {grid_size[1]} columns is set.", FONT_BIG, BLACK, WIN,
@@ -107,7 +107,7 @@ def main():
                     barriers = False
                     ye.main(WIN, WIDTH, HEIGHT, grid_size[0], grid_size[1], barriers)
                 elif large_button.is_hovered(pos):
-                    grid_size = (100, 100)
+                    grid_size = (108, 192)
                     running = False
                     WIN.fill(GRAY)
                     draw_text(f"Grid of {grid_size[0]} rows and {grid_size[1]} columns is set.", FONT_BIG, BLACK, WIN,
