@@ -1,9 +1,6 @@
 import pygame
 import math
 from queue import PriorityQueue
-
-from pygame.examples import grid
-
 WIDTH = 1500 # Width of the window
 HEIGHT = 860 # Height of the window, making it rectangular
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))  # Create a window with specified dimensions
@@ -89,9 +86,6 @@ class Spot:
             if self.is_valid_spot(neighborRow, neighborCol) and not grid[neighborRow][neighborCol].is_barrier():
                 self.neighbors.append(grid[neighborRow][neighborCol])
 
-    def is_valid_spot(self, row, col):
-        return 0 <= row < self.total_rows and 0 <= col < self.total_cols
-
     def __lt__(self, other):
         pass
 
@@ -126,6 +120,56 @@ def get_clicked_pos(pos, rows, cols, width, height):
     row = y // gap
     col = x // gap
     return col, row
+
+def heuristic(point1, point2):
+    a1, b1 = point1
+    a2, b2 = point2
+    return abs(a1 - a2) + abs(b1-b2)
+
+def astar(draw, grid, start, end):
+    count = 0
+    open_set = PriorityQueue()
+    open_set.put((0, count, start))
+    came_from = {}
+    g_score = {spot: float("inf") for row in grid for spot in row}
+    g_score[start] = 0
+    f_score = {spot: float("inf") for row in grid for spot in row}
+    f_score[start] = heuristic((start.x, start.y), (end.x, end.y))
+
+    open_set_hash = {start}
+
+    while not open_set.empty():
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
+        current = open_set.get()[2]
+        open_set_hash.remove(current)
+
+        if current == end:
+            reconstruct_path(came_from, end, draw)
+            end.make_end()
+            return True
+
+        for neighbor in current.neighbors:
+            temp_g_score = g_score[current] + 1  # Assume all edges have weight 1
+
+            if temp_g_score < g_score[neighbor]:
+                came_from[neighbor] = current
+                g_score[neighbor] = temp_g_score
+                f_score[neighbor] = temp_g_score + heuristic((neighbor.x, neighbor.y), (end.x, end.y))
+                if neighbor not in open_set_hash:
+                    count += 1
+                    open_set.put((f_score[neighbor], count, neighbor))
+                    open_set_hash.add(neighbor)
+                    neighbor.make_open()
+
+        draw()
+
+        if current != start:
+            current.make_closed()
+
+    return False
 
 def dijkstra(draw, grid, start, end):
     count = 0
@@ -176,15 +220,15 @@ def reconstruct_path(came_from, current, draw):
         current.make_path()
         draw()
 
-def main(win, width, height):
-    ROWS = 320 # You can adjust the number of rows
-    COLS =  320 # Calculate columns based on width to height ratio or as needed
+def main(win, width, height, ROWS, COLS):
+    # ROWS = 55 # You can adjust the number of rows
+    # COLS =  80 # Calculate columns based on width to height ratio or as needed
 
     grid = make_grid(ROWS, COLS, width)
 
     start = grid[0][0]  # Top-left corner
     start.make_start()
-    end = grid[ROWS - 20][COLS - 20]  # Bottom-right corner
+    end = grid[10][10]  # Bottom-right corner
     end.make_end()
 
     run = True
@@ -231,7 +275,12 @@ def main(win, width, height):
                             spot.update_neighbors(grid)
 
                     dijkstra(lambda: draw(win, grid, ROWS, COLS, width, height), grid, start, end)
+                if event.key == pygame.K_1 and start and end:
+                    for row in grid:
+                        for spot in row:
+                            spot.update_neighbors(grid)
 
+                    astar(lambda: draw(win, grid, ROWS, COLS, width, height), grid, start, end)
                 '''if event.key == pygame.K_c:
                     start = None
                     end = None
