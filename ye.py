@@ -75,6 +75,9 @@ class Spot:
     def draw(self, win):
         pygame.draw.rect(win, self.color, (self.x, self.y, self.width, self.width))
 
+    def get_weight(self):
+        return 1  # Spots have 1 weight by default
+
     def update_neighbors(self, grid):
         self.neighbors = []
         rowChange = [1, -1, 0, 0]
@@ -132,18 +135,19 @@ def dijkstra(draw, grid, start, end):
     g_score = {spot: float("inf") for row in grid for spot in row}
     g_score[start] = 0
 
-    open_set_hash = {start}
+    open_set_hash = {start}  # Set of visited nodes
 
     while not open_set.empty():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
 
-        current = open_set.get()[2]
+        current = open_set.get()[2]  # Removes and returns the minimum from the priority queue
         open_set_hash.remove(current)
 
         if current == end:
             reconstruct_path(came_from, end, draw)
+            start.make_start()
             end.make_end()
             return True
 
@@ -173,8 +177,8 @@ def reconstruct_path(came_from, current, draw):
         draw()
 
 def main(win, width, height):
-    ROWS = 55 # You can adjust the number of rows
-    COLS =  80 # Calculate columns based on width to height ratio or as needed
+    ROWS = 320 # You can adjust the number of rows
+    COLS =  320 # Calculate columns based on width to height ratio or as needed
 
     grid = make_grid(ROWS, COLS, width)
 
