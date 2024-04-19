@@ -125,7 +125,8 @@ def main():
                                                  ' the goal, prioritizing nodes that are likely on the shortest path. '
                                                  'A* is more efficient in finding the shortest'
                                                  ' path in terms of both time and space complexity, especially in scenarios'
-                                                 ' with a clear goal.')
+                                                 ' with a clear goal. When in the program, press SPACE for Dijkstra or'
+                                                 ' press 1 for A*.')
                     barriers = True
 
 
