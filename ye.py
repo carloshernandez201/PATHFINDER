@@ -222,7 +222,8 @@ def reconstruct_path(came_from, current, draw):
         current.make_path()
         draw()
 
-def main(win, width, height, ROWS, COLS):
+
+def main(win, width, height, ROWS, COLS, barriers):
     # ROWS = 55 # You can adjust the number of rows
     # COLS =  80 # Calculate columns based on width to height ratio or as needed
 
@@ -232,11 +233,15 @@ def main(win, width, height, ROWS, COLS):
     start.make_start()
     end = grid[random.randint(0, 30)][30]  # Bottom-right corner
     end.make_end()
-    for i in range(2, ROWS - 1):
-        for j in range(2, COLS - 1):
-            if random.randint(0, 2) == 1 and not grid[i][j].is_end():
-                grid[i][j].make_barrier()
-                
+
+    if barriers:
+        for i in range(1, ROWS - 1):
+            for j in range(1, COLS - 1):
+                if random.randint(0, 2) == 1 and not grid[i][j].is_end():
+                    grid[i][j].make_barrier()
+
+
+
     run = True
     while run:
         draw(win, grid, ROWS, COLS, width, height)

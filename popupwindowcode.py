@@ -64,9 +64,9 @@ class Button:
 def main():
     running = True
 
-    random_button = Button(BUTTON_COLOR, 650, 500, 200, 100, 'Random Barriers')
-    medium_button = Button(BUTTON_COLOR, 450, 300, 250, 100, 'Small (55x75)')
-    large_button = Button(BUTTON_COLOR, 800, 300, 250, 100, 'Large (110x150)')
+    random_button = Button(BUTTON_COLOR, 600, 500, 300, 100, 'Random Barriers (50x50)')
+    medium_button = Button(BUTTON_COLOR, 450, 300, 250, 100, 'Small (50x50)')
+    large_button = Button(BUTTON_COLOR, 800, 300, 250, 100, 'Large (100x100)')
 
     while running:
         WIN.fill(GRAY)
@@ -79,20 +79,24 @@ def main():
                 pygame.quit()
                 sys.exit()
 
+
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if medium_button.is_hovered(pos):
+                if random_button.is_hovered(pos):
                     grid_size = (50, 50)
                     running = False
-                    ye.main(WIN, WIDTH, HEIGHT, grid_size[0], grid_size[1])
+                    barriers = True
+                    ye.main(WIN, WIDTH, HEIGHT, grid_size[0], grid_size[1], barriers)
+                elif medium_button.is_hovered(pos):
+                    grid_size = (50, 50)
+                    running = False
+                    barriers = False
+                    ye.main(WIN, WIDTH, HEIGHT, grid_size[0], grid_size[1], barriers)
                 elif large_button.is_hovered(pos):
                     grid_size = (100, 100)
                     running = False
-                    ye.main(WIN, WIDTH, HEIGHT, grid_size[0], grid_size[1])
-               # elif random_button.is_hovered(pos):
-                #    random_button.color = GREEN
-                #    current_color = random_button.color
-                #    random_button.draw(WIN)
-                #   pygame.display.update()
+                    barriers = False
+                    ye.main(WIN, WIDTH, HEIGHT, grid_size[0], grid_size[1], barriers)
+
 
         random_button.draw(WIN)
         medium_button.draw(WIN)
