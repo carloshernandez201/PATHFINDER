@@ -32,6 +32,10 @@ class Spot:
         self.width = width  # Size of each spot
         self.total_rows = total_rows  # Total rows in the grid
         self.total_cols = total_cols  # Total columns in the grid
+        self.g_score = float("inf")
+        self.f_score = float("inf")
+        self.tiebreaker = -1
+        self.came_from = None
 
     def get_pos(self):
         return self.row, self.col
@@ -90,7 +94,9 @@ class Spot:
         return 0 <= row < self.total_rows and 0 <= col < self.total_cols
 
     def __lt__(self, other):
-        pass
+        if self.f_score == other.f_score:
+            return self.tiebreaker < other.tiebreaker
+        return self.f_score < other.f_score
 
 def make_grid(rows, cols, width, height):
     grid = []
@@ -137,14 +143,12 @@ def dijkstra(draw, grid, start, end):
     return pathfind(draw, grid, start, end, lambda spot1, spot2: 0)
 
 def pathfind(draw, grid, start, end, heuristic):
-    tiebreaker = 0  # When the first element of the tuple are equal, the priority queue will check second element
+    count = 0  # When the f scores are equal, the priority queue will utilize this count variable for comparisons
     open_set = PriorityQueue()
-    open_set.put((0, tiebreaker, start))
-    came_from = {}
-    g_score = {spot: float("inf") for row in grid for spot in row}  # g score refers to distance
-    g_score[start] = 0
-    f_score = {spot: float("inf") for row in grid for spot in row}  # f = g + h
-    f_score[start] = heuristic(start, end)
+    open_set.put(start)   # The less than comparison for two spots is based on f score
+    start.g_score = 0  # g score refers to distance from start tile
+    start.f_score = heuristic(start, end)
+    start.tiebreaker = count
 
     visited = set()  # Set to track visited nodes
 
@@ -154,25 +158,26 @@ def pathfind(draw, grid, start, end, heuristic):
                 pygame.quit()
 
         # Take the minimum distance tile from the current priority queue
-        current = open_set.get()[2]
+        current = open_set.get()
         visited.add(current)
 
         if current == end:
-            reconstruct_path(came_from, end, draw)
+            reconstruct_path(current, draw)
             start.make_start()
             end.make_end()
             return True
 
         for neighbor in current.neighbors:
             if neighbor not in visited:
-                temp_g_score = g_score[current] + 1  # Assume all edges have weight 1
+                temp_g_score = current.g_score + 1  # Assume all edges have weight 1
 
-                if temp_g_score < g_score[neighbor]:
-                    came_from[neighbor] = current
-                    g_score[neighbor] = temp_g_score
-                    f_score[neighbor] = g_score[neighbor] + heuristic(neighbor, end)
-                    tiebreaker += 1
-                    open_set.put((f_score[neighbor], tiebreaker, neighbor))
+                if temp_g_score < neighbor.g_score:
+                    neighbor.came_from = current
+                    neighbor.g_score = temp_g_score
+                    neighbor.f_score = neighbor.g_score + heuristic(neighbor, end)
+                    neighbor.tiebreaker = count
+                    count += 1
+                    open_set.put(neighbor)
                     neighbor.make_open()
 
         draw()
@@ -182,12 +187,12 @@ def pathfind(draw, grid, start, end, heuristic):
 
     return False
 
-def reconstruct_path(came_from, current, draw):
-    while current in came_from:
-        current = came_from[current]
+def reconstruct_path(current, draw):
+    current = current.came_from
+    while current is not None:
         current.make_path()
         draw()
-
+        current = current.came_from
 
 def main(win, width, height, ROWS, COLS, barriers):
     grid = make_grid(ROWS, COLS, width, height)
@@ -200,7 +205,7 @@ def main(win, width, height, ROWS, COLS, barriers):
     if barriers:
         for i in range(0, ROWS - 1):
             for j in range(0, COLS - 1):
-                if random.randint(0, 2) == 1 and not grid[i][j].is_end() and (i != j or i != 0):
+                if random.randint(0, 3) == 1 and not grid[i][j].is_end() and (i != j or i != 0):
                     grid[i][j].make_barrier()
 
 
