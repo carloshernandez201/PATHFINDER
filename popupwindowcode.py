@@ -11,6 +11,7 @@ WIDTH = 1728
 HEIGHT = 972
 FONT_BIG = pygame.font.Font(None, 40)  #BIG IS FOR HEADING, SMALL IS FOR THE BUTTON
 FONT_SMALL = pygame.font.Font(None, 32)
+RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -62,11 +63,31 @@ class Button:
     def is_hovered(self, pos):
         return self.x < pos[0] < self.x + self.width and self.y < pos[1] < self.y + self.height
 
+
+class ToggleButton(Button):
+    def __init__(self, color, x, y, width, height, text='', enabled=False):
+        super().__init__(color, x, y, width, height, text)
+        self.enabled = enabled
+
+    def draw(self, win, outline=None):
+        if self.enabled:
+            current_color = GREEN  # Green indicates the option is enabled
+        else:
+            current_color = RED  # Red indicates the option is disabled
+
+        super().draw(win, outline=current_color)  # Draw the button with updated color
+
+    def toggle(self):
+        self.enabled = not self.enabled
+
+
 def switch_to_board(grid_rows, grid_cols, barriers, water):
     WIN.fill(GRAY)
     text = f"Grid of {grid_rows} rows and {grid_cols} columns is set."
     if barriers:
         text += " Random barriers are enabled."
+    if water:
+        text += " Water tiles are enabled."
     draw_text(text, FONT_BIG,
               BLACK, WIN,
               WIDTH // 2,
@@ -80,8 +101,10 @@ def main():
 
     about_button = Button(BUTTON_COLOR, 600, 650, 300, 100, 'About Our Program')
     random_button = Button(BUTTON_COLOR, 600, 500, 300, 100, 'Random Barriers (54x96)')
-    medium_button = Button(BUTTON_COLOR, 450, 300, 250, 100, 'Small (54x96)')
+    small_button = Button(BUTTON_COLOR, 450, 300, 250, 100, 'Small (54x96)')
     large_button = Button(BUTTON_COLOR, 800, 300, 250, 100, 'Large (108x192)')
+    barriers_button = ToggleButton(BUTTON_COLOR, 100, 400, 250, 100, 'Toggle Barriers')
+    water_button = ToggleButton(BUTTON_COLOR, 100, 540, 250, 100, 'Toggle Water')
 
     while running:
         WIN.fill(GRAY)
@@ -99,12 +122,12 @@ def main():
                 if random_button.is_hovered(pos):
                     running = False
                     switch_to_board(54, 96, True, True)
-                elif medium_button.is_hovered(pos):
+                elif small_button.is_hovered(pos):
                     running = False
-                    switch_to_board(54, 96, False, False)
+                    switch_to_board(54, 96, barriers_button.enabled, water_button.enabled)
                 elif large_button.is_hovered(pos):
                     running = False
-                    switch_to_board(108, 192, False, False)
+                    switch_to_board(108, 192, barriers_button.enabled, water_button.enabled)
                 elif about_button.is_hovered(pos):
                     messagebox.showinfo('About', 'Dijkstra\'s algorithm and A* are both pathfinding '
                                                  'algorithms used in graph traversal. Dijkstra\'s guarantees the shortest'
@@ -115,11 +138,17 @@ def main():
                                                  ' path in terms of both time and space complexity, especially in scenarios'
                                                  ' with a clear goal. When in the program, press SPACE for Dijkstra or'
                                                  ' press 1 for A*.')
+                elif barriers_button.is_hovered(pos):
+                    barriers_button.toggle()
+                elif water_button.is_hovered(pos):
+                    water_button.toggle()
 
         about_button.draw(WIN)
         random_button.draw(WIN)
-        medium_button.draw(WIN)
+        small_button.draw(WIN)
         large_button.draw(WIN)
+        barriers_button.draw(WIN)
+        water_button.draw(WIN)
 
         pygame.display.update()
 

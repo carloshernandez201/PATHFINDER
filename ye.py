@@ -12,6 +12,7 @@ pygame.display.set_caption("A* Path Finding Algorithm")
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
+DEEP_SKY_BLUE = (0, 191, 255)
 YELLOW = (255, 255, 0)
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -55,7 +56,7 @@ class Spot:
         return self.color == ORANGE
 
     def is_end(self):
-        return self.color == TURQUOISE
+        return self.color == BLUE
 
     def reset(self):
         self.color = self.default_color
@@ -73,7 +74,7 @@ class Spot:
         self.color = BLACK
 
     def make_end(self):
-        self.color = TURQUOISE
+        self.color = BLUE
 
     def make_path(self):
         self.color = PURPLE
@@ -104,19 +105,29 @@ class Spot:
         return self.f_score < other.f_score
 
 class WaterSpot(Spot):
-    default_color = BLUE
+    default_color = DEEP_SKY_BLUE
     def __init__(self, row, col, width, total_rows, total_cols):
         super().__init__(row, col, width, total_rows, total_cols)
         self.color = self.default_color
         self.weight = 5
 
-def make_grid(rows, cols, width, height):
+
+
+
+
+def make_grid(rows, cols, width, height, water_enabled):
+    rand_max = 0
+    if water_enabled:
+        rand_max = 1
     grid = []
     gap = min(width // cols, height // rows)
     for i in range(rows):
         grid.append([])
         for j in range(cols):  # Use cols for the inner loop
-            spot = Spot(i, j, gap, rows, cols)
+            if random.randint(0, rand_max) == 1:
+                spot = WaterSpot(i, j, gap, rows, cols)
+            else:
+                spot = Spot(i, j, gap, rows, cols)
             grid[i].append(spot)
     return grid
 
@@ -153,8 +164,8 @@ def dist(spot1, spot2):
 
 
 def astar(draw, start, end):
-    # Note that A* and Dijkstra are mostly the same except the priority queue ranks based on f score, not dist from
-    # start
+    # Note that A* and Dijkstra are mostly the same except the priority queue ranks based on f score, not weight cost
+    # from start
     return pathfind(draw, start, end, dist)
 
 
@@ -166,7 +177,7 @@ def pathfind(draw, start, end, heuristic):
     count = 0  # When the f scores are equal, the priority queue will utilize this count variable for comparisons
     open_set = PriorityQueue()
     open_set.put(start)   # The less than comparison for two spots is based on f score
-    start.g_score = 0  # g score refers to distance from start tile
+    start.g_score = 0  # g score refers to weight cost from start tile
     start.f_score = heuristic(start, end)
     start.tiebreaker = count
 
@@ -177,7 +188,7 @@ def pathfind(draw, start, end, heuristic):
             if event.type == pygame.QUIT:
                 pygame.quit()
 
-        # Take the minimum distance tile from the current priority queue
+        # Take the minimum weight cost tile from the current priority queue
         current = open_set.get()
         visited.add(current)
 
@@ -224,7 +235,7 @@ def set_neighbors(grid):
 
 
 def main(win, width, height, ROWS, COLS, barriers, water):
-    grid = make_grid(ROWS, COLS, width, height)
+    grid = make_grid(ROWS, COLS, width, height, water)
 
     start = grid[0][0]  # Top-left corner
     start.make_start()
@@ -232,8 +243,8 @@ def main(win, width, height, ROWS, COLS, barriers, water):
     end.make_end()
 
     if barriers:
-        for i in range(0, ROWS - 1):
-            for j in range(0, COLS - 1):
+        for i in range(0, ROWS):
+            for j in range(0, COLS):
                 if random.randint(0, 3) == 1 and not grid[i][j].is_end() and (i != j or i != 0):
                     grid[i][j].make_barrier()
 
