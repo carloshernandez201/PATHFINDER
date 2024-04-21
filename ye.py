@@ -21,6 +21,10 @@ ORANGE = (255, 165, 0)
 GREY = (128, 128, 128)
 TURQUOISE = (64, 224, 208)
 
+# Water colors
+DARK_GREEN = (0, 100, 0)
+DARK_RED = (139, 0, 0)
+DARK_PURPLE = (75, 0, 130)
 
 class Spot:
     default_color = WHITE
@@ -111,8 +115,14 @@ class WaterSpot(Spot):
         self.color = self.default_color
         self.weight = 5
 
+    def make_closed(self):
+        self.color = DARK_RED
 
+    def make_open(self):
+        self.color = DARK_GREEN
 
+    def make_path(self):
+        self.color = DARK_PURPLE
 
 
 def make_grid(rows, cols, width, height, water_enabled):
@@ -234,7 +244,7 @@ def set_neighbors(grid):
             spot.update_neighbors(grid)
 
 
-def main(win, width, height, ROWS, COLS, barriers, water):
+def run_ye(win, width, height, ROWS, COLS, barriers, water):
     grid = make_grid(ROWS, COLS, width, height, water)
 
     start = grid[0][0]  # Top-left corner
@@ -254,6 +264,7 @@ def main(win, width, height, ROWS, COLS, barriers, water):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+                pygame.quit()
 
             if pygame.mouse.get_pressed()[0]:  # LEFT
                 pos = pygame.mouse.get_pos()
@@ -292,9 +303,7 @@ def main(win, width, height, ROWS, COLS, barriers, water):
                 if event.key == pygame.K_1 and start and end:
                     set_neighbors(grid)
                     astar(lambda: draw(win, grid, ROWS, COLS, width, height), start, end)
-                '''if event.key == pygame.K_c:
-                    start = None
-                    end = None
-                    grid = make_grid(ROWS, width)'''
+                if event.key == pygame.K_BACKSPACE:
+                    # Reset to the initial start screen when backspace is pressed
+                    run = False
 
-    pygame.quit()

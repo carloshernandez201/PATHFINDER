@@ -94,22 +94,29 @@ def switch_to_board(grid_rows, grid_cols, barriers, water):
               HEIGHT // 2)
     pygame.display.flip()
     pygame.time.wait(2000)
-    ye.main(WIN, WIDTH, HEIGHT, grid_rows, grid_cols, barriers, water)
+    ye.run_ye(WIN, WIDTH, HEIGHT, grid_rows, grid_cols, barriers, water)
+    initialize_start_screen(WIN)
 
-def main():
-    running = True
 
+def initialize_start_screen(win):
+    global about_button, random_button, small_button, large_button, barriers_button, water_button
     about_button = Button(BUTTON_COLOR, 600, 650, 300, 100, 'About Our Program')
     random_button = Button(BUTTON_COLOR, 600, 500, 300, 100, 'Random Barriers (54x96)')
     small_button = Button(BUTTON_COLOR, 450, 300, 250, 100, 'Small (54x96)')
     large_button = Button(BUTTON_COLOR, 800, 300, 250, 100, 'Large (108x192)')
     barriers_button = ToggleButton(BUTTON_COLOR, 100, 400, 250, 100, 'Toggle Barriers')
     water_button = ToggleButton(BUTTON_COLOR, 100, 540, 250, 100, 'Toggle Water')
+    win.fill(GRAY)
+    draw_text('Select Grid Size', FONT_BIG, BLACK, win, WIDTH // 2, 50)
+
+
+def main():
+    global WIN
+    running = True
+
+    initialize_start_screen(WIN)  # Initialize the start screen for the first time
 
     while running:
-        WIN.fill(GRAY)
-        draw_text('Select Grid Size', FONT_BIG, BLACK, WIN, WIDTH // 2, 50)
-
         for event in pygame.event.get():
             pos = pygame.mouse.get_pos()
 
