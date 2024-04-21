@@ -107,7 +107,7 @@ def initialize_start_screen(win):
     random_button = Button(BUTTON_COLOR, 600, 500, 300, 100, 'Random Barriers (54x96)')
     small_button = Button(BUTTON_COLOR, 450, 300, 250, 100, 'Small (36x64)')
     large_button = Button(BUTTON_COLOR, 800, 300, 250, 100, 'Large (108x192)')
-    double_button = Button(BUTTON_COLOR, 1000, 500, 400, 100, 'Side by Side (108x95) (108x95)')
+    double_button = Button(BUTTON_COLOR, 1000, 500, 400, 100, 'Side by Side (108x90) (108x90)')
     barriers_button = ToggleButton(BUTTON_COLOR, 100, 400, 250, 100, 'Toggle Barriers')
     water_button = ToggleButton(BUTTON_COLOR, 100, 540, 250, 100, 'Toggle Water')
     win.fill(GRAY)
@@ -137,7 +137,7 @@ def main():
                 elif large_button.is_hovered(pos):
                     switch_to_board(108, 192, barriers_button.enabled, water_button.enabled, 1)
                 elif double_button.is_hovered(pos):
-                    switch_to_board(108, 95, barriers_button.enabled, water_button.enabled, 2)
+                    switch_to_board(108, 90, barriers_button.enabled, water_button.enabled, 2)
                 elif about_button.is_hovered(pos):
                     messagebox.showinfo('About', 'Dijkstra\'s algorithm and A* are both pathfinding '
                                                  'algorithms used in graph traversal. Dijkstra\'s guarantees the shortest'

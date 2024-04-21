@@ -8,7 +8,6 @@ HEIGHT = 972
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))  # Create a window with specified dimensions
 pygame.display.set_caption("Dijkstra and A* Path Finding Algorithms")
 
-
 # Define colors used in the program
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
@@ -27,19 +26,21 @@ DARK_GREEN = (0, 100, 0)
 DARK_RED = (139, 0, 0)
 DARK_PURPLE = (75, 0, 130)
 
+
 class Spot:
     default_color = WHITE
-    def __init__(self, row, col, width, total_rows, total_cols):
+
+    def __init__(self, row, col, x_position, width, total_rows, total_cols):
         self.row = row
         self.col = col
-        self.x = col * width  # Calculate x position based on column
+        self.x = x_position  # Accept x position value to accommodate for multiple side-by-side grids
         self.y = row * width  # Calculate y position based on row, assuming square cells for simplicity
         self.color = self.default_color  # Default color is white
         self.neighbors = []  # List to keep track of neighboring spots
         self.width = width  # Size of each spot
         self.total_rows = total_rows  # Total rows in the grid
         self.total_cols = total_cols  # Total columns in the grid
-        self.weight = 1   # Default weight is 1
+        self.weight = 1  # Default weight is 1
         self.g_score = float("inf")
         self.f_score = float("inf")
         self.tiebreaker = -1
@@ -109,10 +110,12 @@ class Spot:
             return self.tiebreaker < other.tiebreaker
         return self.f_score < other.f_score
 
+
 class WaterSpot(Spot):
     default_color = DEEP_SKY_BLUE
-    def __init__(self, row, col, width, total_rows, total_cols):
-        super().__init__(row, col, width, total_rows, total_cols)
+
+    def __init__(self, row, col, x_position, width, total_rows, total_cols):
+        super().__init__(row, col, x_position, width, total_rows, total_cols)
         self.color = self.default_color
         self.weight = 5
 
@@ -126,7 +129,7 @@ class WaterSpot(Spot):
         self.color = DARK_PURPLE
 
 
-def make_grid(rows, cols, width, height, water_enabled):
+def make_grid(rows, cols, width, height, water_enabled, x_offset=0):
     rand_max = 0
     if water_enabled:
         rand_max = 1
@@ -135,28 +138,32 @@ def make_grid(rows, cols, width, height, water_enabled):
     for i in range(rows):
         grid.append([])
         for j in range(cols):  # Use cols for the inner loop
+            x_position = x_offset + j * gap
             if random.randint(0, rand_max) == 1:
-                spot = WaterSpot(i, j, gap, rows, cols)
+                spot = WaterSpot(i, j, x_position, gap, rows, cols)
             else:
-                spot = Spot(i, j, gap, rows, cols)
+                spot = Spot(i, j, x_position, gap, rows, cols)
             grid[i].append(spot)
     return grid
 
 
-def draw_grid(win, rows, cols, width, height):
-    gap = min(width // cols, height // rows)
+def draw_grid(win, rows, cols, partial_width, height, x_offset):
+    gap = min(partial_width // cols, height // rows)
     for i in range(rows + 1):
-        pygame.draw.line(win, GREY, (0, i * gap), (width, i * gap))  # Draw horizontal lines
+        pygame.draw.line(win, GREY, (x_offset, i * gap), (x_offset + partial_width, i * gap))
     for j in range(cols + 1):
-        pygame.draw.line(win, GREY, (j * gap, 0), (j * gap, height))  # Draw vertical lines
+        pygame.draw.line(win, GREY, (x_offset + j * gap, 0), (x_offset + j * gap, height))
 
 
-def draw(win, grid, rows, cols, width, height):
+def draw(win, grid_list, rows, cols, partial_width, height):
     win.fill(WHITE)
-    for row in grid:
-        for spot in row:
-            spot.draw(win)
-    draw_grid(win, rows, cols, width, height)
+    for grid_index, grid in enumerate(grid_list):
+        x_offset = grid_index * partial_width
+        for row in grid:
+            for spot in row:
+                # Draw each spot with the correct x_offset
+                spot.draw(win)
+        draw_grid(win, rows, cols, partial_width, height, x_offset)  # This might need to be adapted if grids overlap
     pygame.display.update()
 
 
@@ -171,7 +178,7 @@ def get_clicked_pos(pos, rows, cols, width, height):
 def dist(spot1, spot2):
     a1, b1 = spot1.x, spot1.y
     a2, b2 = spot2.x, spot2.y
-    return abs(a1 - a2) + abs(b1-b2)
+    return abs(a1 - a2) + abs(b1 - b2)
 
 
 def astar(draw, start, end):
@@ -187,7 +194,7 @@ def dijkstra(draw, start, end):
 def pathfind(draw, start, end, heuristic):
     count = 0  # When the f scores are equal, the priority queue will utilize this count variable for comparisons
     open_set = PriorityQueue()
-    open_set.put(start)   # The less than comparison for two spots is based on f score
+    open_set.put(start)  # The less than comparison for two spots is based on f score
     start.g_score = 0  # g score refers to weight cost from start tile
     start.f_score = heuristic(start, end)
     start.tiebreaker = count
@@ -251,22 +258,35 @@ def set_neighbors(grid):
 
 
 def run_ye(win, width, height, ROWS, COLS, barriers, water, num_grids):
-    grid_list = [make_grid(ROWS, COLS, width, height, water)]
+    grid_list = []
+    partial_width = width // num_grids
+    minRandInt = min(ROWS, COLS) // 3
+    starts = []
+    ends = []
 
-    start = grid_list[0][0][0]  # Top-left corner
-    start.make_start()
-    end = grid_list[0][random.randint(30, ROWS - 1)][random.randint(30, COLS - 1)]
-    end.make_end()
+    end_tile_row = random.randint(minRandInt, ROWS - 1)
+    end_tile_col = random.randint(minRandInt, COLS - 1)
+    for i in range(num_grids):
+        x_offset = i * partial_width
+        grid_list.append(make_grid(ROWS, COLS, partial_width, height, water, x_offset))
+        start = grid_list[i][0][0]  # Top-left corner
+        start.make_start()
+        end = grid_list[i][end_tile_row][end_tile_col]
+        end.make_end()
+
+        starts.append(start)
+        ends.append(end)
 
     if barriers:
         for i in range(0, ROWS):
             for j in range(0, COLS):
                 if random.randint(0, 3) == 1 and not grid_list[0][i][j].is_end() and (i != j or i != 0):
-                    grid_list[0][i][j].make_barrier()
+                    for grid in grid_list:
+                        grid[i][j].make_barrier()
 
     run = True
     while run:
-        draw(win, grid_list[0], ROWS, COLS, width, height)
+        draw(win, grid_list, ROWS, COLS, partial_width, height)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -293,7 +313,7 @@ def run_ye(win, width, height, ROWS, COLS, barriers, water, num_grids):
             elif pygame.mouse.get_pressed()[2]:  # RIGHT
                 pos = pygame.mouse.get_pos()
                 row, col = get_clicked_pos(pos, ROWS, COLS, width, height)
-                print(str(get_clicked_pos(pos,ROWS,COLS,WIDTH, HEIGHT)))
+                print(str(get_clicked_pos(pos, ROWS, COLS, WIDTH, HEIGHT)))
                 if not (row >= ROWS or col >= COLS or row < 0 or col < 0):
                     spot = grid_list[0][row][col]
                     spot.reset()
@@ -303,13 +323,16 @@ def run_ye(win, width, height, ROWS, COLS, barriers, water, num_grids):
                         end = None
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_2 and start and end:
-                    set_neighbors(grid_list[0])
-                    dijkstra(lambda: draw(win, grid_list[0], ROWS, COLS, width, height), start, end)
                 if event.key == pygame.K_1 and start and end:
                     set_neighbors(grid_list[0])
-                    astar(lambda: draw(win, grid_list[0], ROWS, COLS, width, height), start, end)
+                    astar(lambda: draw(win, grid_list, ROWS, COLS, partial_width, height), starts[0], ends[0])
+                if event.key == pygame.K_2 and start and end:
+                    if num_grids == 1:
+                        set_neighbors(grid_list[0])
+                        dijkstra(lambda: draw(win, grid_list, ROWS, COLS, partial_width, height), starts[0], ends[0])
+                    else:
+                        set_neighbors(grid_list[1])
+                        dijkstra(lambda: draw(win, grid_list, ROWS, COLS, partial_width, height), starts[1], ends[1])
                 if event.key == pygame.K_BACKSPACE:
                     # Reset to the initial start screen when backspace is pressed
                     run = False
-
