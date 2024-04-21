@@ -6,7 +6,8 @@ from queue import PriorityQueue
 WIDTH = 1728
 HEIGHT = 972
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))  # Create a window with specified dimensions
-pygame.display.set_caption("A* Path Finding Algorithm")
+pygame.display.set_caption("Dijkstra and A* Path Finding Algorithms")
+
 
 # Define colors used in the program
 RED = (255, 0, 0)
@@ -197,6 +198,11 @@ def pathfind(draw, start, end, heuristic):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_BACKSPACE:
+                    # Reset to the initial start screen when backspace is pressed
+                    return False
 
         # Take the minimum weight cost tile from the current priority queue
         current = open_set.get()
@@ -244,26 +250,25 @@ def set_neighbors(grid):
             spot.update_neighbors(grid)
 
 
-def run_ye(win, width, height, ROWS, COLS, barriers, water):
-    grid = make_grid(ROWS, COLS, width, height, water)
+def run_ye(win, width, height, ROWS, COLS, barriers, water, num_grids):
+    grid_list = [make_grid(ROWS, COLS, width, height, water)]
 
-    start = grid[0][0]  # Top-left corner
+    start = grid_list[0][0][0]  # Top-left corner
     start.make_start()
-    end = grid[random.randint(30, ROWS - 1)][random.randint(30, COLS - 1)]
+    end = grid_list[0][random.randint(30, ROWS - 1)][random.randint(30, COLS - 1)]
     end.make_end()
 
     if barriers:
         for i in range(0, ROWS):
             for j in range(0, COLS):
-                if random.randint(0, 3) == 1 and not grid[i][j].is_end() and (i != j or i != 0):
-                    grid[i][j].make_barrier()
+                if random.randint(0, 3) == 1 and not grid_list[0][i][j].is_end() and (i != j or i != 0):
+                    grid_list[0][i][j].make_barrier()
 
     run = True
     while run:
-        draw(win, grid, ROWS, COLS, width, height)
+        draw(win, grid_list[0], ROWS, COLS, width, height)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                run = False
                 pygame.quit()
                 sys.exit()
 
@@ -273,7 +278,7 @@ def run_ye(win, width, height, ROWS, COLS, barriers, water):
                 print(str(get_clicked_pos(pos, ROWS, COLS, WIDTH, HEIGHT)))
                 if not (row >= ROWS or col >= COLS or row < 0 or col < 0):
                     print("A")
-                    spot = grid[row][col]
+                    spot = grid_list[0][row][col]
                     if not start and spot != end:
                         start = spot
                         start.make_start()
@@ -290,7 +295,7 @@ def run_ye(win, width, height, ROWS, COLS, barriers, water):
                 row, col = get_clicked_pos(pos, ROWS, COLS, width, height)
                 print(str(get_clicked_pos(pos,ROWS,COLS,WIDTH, HEIGHT)))
                 if not (row >= ROWS or col >= COLS or row < 0 or col < 0):
-                    spot = grid[row][col]
+                    spot = grid_list[0][row][col]
                     spot.reset()
                     if spot == start:
                         start = None
@@ -299,11 +304,11 @@ def run_ye(win, width, height, ROWS, COLS, barriers, water):
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_2 and start and end:
-                    set_neighbors(grid)
-                    dijkstra(lambda: draw(win, grid, ROWS, COLS, width, height), start, end)
+                    set_neighbors(grid_list[0])
+                    dijkstra(lambda: draw(win, grid_list[0], ROWS, COLS, width, height), start, end)
                 if event.key == pygame.K_1 and start and end:
-                    set_neighbors(grid)
-                    astar(lambda: draw(win, grid, ROWS, COLS, width, height), start, end)
+                    set_neighbors(grid_list[0])
+                    astar(lambda: draw(win, grid_list[0], ROWS, COLS, width, height), start, end)
                 if event.key == pygame.K_BACKSPACE:
                     # Reset to the initial start screen when backspace is pressed
                     run = False

@@ -81,9 +81,12 @@ class ToggleButton(Button):
         self.enabled = not self.enabled
 
 
-def switch_to_board(grid_rows, grid_cols, barriers, water):
+def switch_to_board(grid_rows, grid_cols, barriers, water, num_grids):
     WIN.fill(GRAY)
-    text = f"Grid of {grid_rows} rows and {grid_cols} columns is set."
+    if num_grids == 1:
+        text = f"Grid of {grid_rows} rows and {grid_cols} columns is set."
+    else:
+        text = f"{num_grids} grids of {grid_rows} rows and {grid_cols} columns each are set."
     if barriers:
         text += " Random barriers are enabled."
     if water:
@@ -94,16 +97,17 @@ def switch_to_board(grid_rows, grid_cols, barriers, water):
               HEIGHT // 2)
     pygame.display.flip()
     pygame.time.wait(2000)
-    ye.run_ye(WIN, WIDTH, HEIGHT, grid_rows, grid_cols, barriers, water)
+    ye.run_ye(WIN, WIDTH, HEIGHT, grid_rows, grid_cols, barriers, water, num_grids)
     initialize_start_screen(WIN)
 
 
 def initialize_start_screen(win):
-    global about_button, random_button, small_button, large_button, barriers_button, water_button
+    global about_button, random_button, small_button, large_button, double_button, barriers_button, water_button
     about_button = Button(BUTTON_COLOR, 600, 650, 300, 100, 'About Our Program')
     random_button = Button(BUTTON_COLOR, 600, 500, 300, 100, 'Random Barriers (54x96)')
-    small_button = Button(BUTTON_COLOR, 450, 300, 250, 100, 'Small (54x96)')
+    small_button = Button(BUTTON_COLOR, 450, 300, 250, 100, 'Small (36x64)')
     large_button = Button(BUTTON_COLOR, 800, 300, 250, 100, 'Large (108x192)')
+    double_button = Button(BUTTON_COLOR, 1000, 500, 400, 100, 'Side by Side (108x95) (108x95)')
     barriers_button = ToggleButton(BUTTON_COLOR, 100, 400, 250, 100, 'Toggle Barriers')
     water_button = ToggleButton(BUTTON_COLOR, 100, 540, 250, 100, 'Toggle Water')
     win.fill(GRAY)
@@ -127,11 +131,13 @@ def main():
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if random_button.is_hovered(pos):
-                    switch_to_board(54, 96, True, True)
+                    switch_to_board(54, 96, True, True, 1)
                 elif small_button.is_hovered(pos):
-                    switch_to_board(54, 96, barriers_button.enabled, water_button.enabled)
+                    switch_to_board(36, 64, barriers_button.enabled, water_button.enabled, 1)
                 elif large_button.is_hovered(pos):
-                    switch_to_board(108, 192, barriers_button.enabled, water_button.enabled)
+                    switch_to_board(108, 192, barriers_button.enabled, water_button.enabled, 1)
+                elif double_button.is_hovered(pos):
+                    switch_to_board(108, 95, barriers_button.enabled, water_button.enabled, 2)
                 elif about_button.is_hovered(pos):
                     messagebox.showinfo('About', 'Dijkstra\'s algorithm and A* are both pathfinding '
                                                  'algorithms used in graph traversal. Dijkstra\'s guarantees the shortest'
@@ -151,6 +157,7 @@ def main():
         random_button.draw(WIN)
         small_button.draw(WIN)
         large_button.draw(WIN)
+        double_button.draw(WIN)
         barriers_button.draw(WIN)
         water_button.draw(WIN)
 
