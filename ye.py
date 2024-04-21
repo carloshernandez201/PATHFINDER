@@ -1,5 +1,5 @@
 import random
-
+import sys
 import pygame
 from queue import PriorityQueue
 
@@ -265,6 +265,7 @@ def run_ye(win, width, height, ROWS, COLS, barriers, water):
             if event.type == pygame.QUIT:
                 run = False
                 pygame.quit()
+                sys.exit()
 
             if pygame.mouse.get_pressed()[0]:  # LEFT
                 pos = pygame.mouse.get_pos()
@@ -297,7 +298,7 @@ def run_ye(win, width, height, ROWS, COLS, barriers, water):
                         end = None
 
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE and start and end:
+                if event.key == pygame.K_2 and start and end:
                     set_neighbors(grid)
                     dijkstra(lambda: draw(win, grid, ROWS, COLS, width, height), start, end)
                 if event.key == pygame.K_1 and start and end:

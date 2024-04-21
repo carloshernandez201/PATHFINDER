@@ -127,13 +127,10 @@ def main():
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if random_button.is_hovered(pos):
-                    running = False
                     switch_to_board(54, 96, True, True)
                 elif small_button.is_hovered(pos):
-                    running = False
                     switch_to_board(54, 96, barriers_button.enabled, water_button.enabled)
                 elif large_button.is_hovered(pos):
-                    running = False
                     switch_to_board(108, 192, barriers_button.enabled, water_button.enabled)
                 elif about_button.is_hovered(pos):
                     messagebox.showinfo('About', 'Dijkstra\'s algorithm and A* are both pathfinding '
@@ -143,8 +140,8 @@ def main():
                                                  ' the goal, prioritizing nodes that are likely on the shortest path. '
                                                  'A* is more efficient in finding the shortest'
                                                  ' path in terms of both time and space complexity, especially in scenarios'
-                                                 ' with a clear goal. When in the program, press SPACE for Dijkstra or'
-                                                 ' press 1 for A*.')
+                                                 ' with a clear goal. \nWhen in the program, press 1 for A*,'
+                                                 ' press 2 for Dijkstra, and press Backspace to return to the menu screen')
                 elif barriers_button.is_hovered(pos):
                     barriers_button.toggle()
                 elif water_button.is_hovered(pos):
