@@ -132,9 +132,9 @@ def displayTimeElapsed():
 
 
 def initialize_start_screen(win):
-    global about_button, random_button, small_button, large_button, double_button_small, double_button_large, barriers_button, water_button
+    global about_button, medium_button, small_button, large_button, double_button_small, double_button_large, barriers_button, water_button
     about_button = Button(BUTTON_COLOR, 600, 650, 300, 100, 'About Our Program')
-    random_button = Button(BUTTON_COLOR, 600, 500, 300, 100, 'Random Barriers (54x96)')
+    medium_button = Button(BUTTON_COLOR, 600, 500, 300, 100, 'Medium (54x96)')
     small_button = Button(BUTTON_COLOR, 450, 300, 250, 100, 'Small (36x64)')
     large_button = Button(BUTTON_COLOR, 800, 300, 250, 100, 'Large (108x192)')
     double_button_small = Button(BUTTON_COLOR, 1000, 500, 400, 100, 'Side by Side (54x45) (54x45)')
@@ -161,8 +161,8 @@ def main():
 
 
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if random_button.is_hovered(pos):
-                    switch_to_board(54, 96, True, True, 1)
+                if medium_button.is_hovered(pos):
+                    switch_to_board(54, 96, barriers_button.enabled, water_button.enabled, 1)
                 elif small_button.is_hovered(pos):
                     switch_to_board(36, 64, barriers_button.enabled, water_button.enabled, 1)
                 elif large_button.is_hovered(pos):
@@ -189,7 +189,7 @@ def main():
                     water_button.toggle()
 
         about_button.draw(WIN)
-        random_button.draw(WIN)
+        medium_button.draw(WIN)
         small_button.draw(WIN)
         large_button.draw(WIN)
         double_button_small.draw(WIN)
