@@ -32,6 +32,7 @@ DARK_PURPLE = (75, 0, 130)
 time_dijkstra = 0
 time_astar = 0
 
+
 class Spot:
     default_color = WHITE
 
@@ -48,7 +49,6 @@ class Spot:
         self.weight = 1  # Default weight is 1
         self.g_score = float("inf")
         self.f_score = float("inf")
-        self.tiebreaker = -1
         self.came_from = None
 
     def get_pos(self):
@@ -111,9 +111,7 @@ class Spot:
         return self.weight
 
     def __lt__(self, other):
-        if self.f_score == other.f_score:
-            return self.tiebreaker < other.tiebreaker
-        return self.f_score < other.f_score
+        return False
 
 
 class WaterSpot(Spot):
@@ -180,10 +178,10 @@ def get_clicked_pos(pos, rows, cols, width, height):
     return col, row
 
 
-def dist(spot1, spot2):
-    a1, b1 = spot1.x, spot1.y
-    a2, b2 = spot2.x, spot2.y
-    return abs(a1 - a2) + abs(b1 - b2)
+def dist(p1, p2):
+    x1, y1 = p1
+    x2, y2 = p2
+    return abs(x1 - x2) + abs(y1 - y2)
 
 
 def astar(draw, start, end):
@@ -196,15 +194,15 @@ def dijkstra(draw, start, end):
     return pathfind(draw, start, end, lambda spot1, spot2: 0)
 
 
-def pathfind(draw, start, end, heuristic):
-    count = 0  # When the f scores are equal, the priority queue will utilize this count variable for comparisons
-    open_set = PriorityQueue()
-    open_set.put(start)  # The less than comparison for two spots is based on f score
-    start.g_score = 0  # g score refers to weight cost from start tile
-    start.f_score = heuristic(start, end)
-    start.tiebreaker = count
+def pathfind(draw, start, end, h):
+    count = 0
+    open_set = PriorityQueue()  # The less than comparison for two spots is based on f score
+    open_set.put((0, count, start))
+    start.g_score = 0   # g score is based on weight cost between two tiles
+    start.f_score = h(start.get_pos(), end.get_pos())   # f = g + h
 
-    visited = set()  # Set to track visited nodes
+    open_set_hash = {start}  # This tracks nodes that are in the priority queue, and provides amortized O(1) check
+    # time, compared to checking the priority queue which is O(n) check time
 
     while not open_set.empty():
         for event in pygame.event.get():
@@ -217,28 +215,27 @@ def pathfind(draw, start, end, heuristic):
                     return False
 
         # Take the minimum f score tile from the current priority queue
-        current = open_set.get()
-        visited.add(current)
+        current = open_set.get()[2]
+        open_set_hash.remove(current)
 
         if current == end:
-            print(current.g_score)
             reconstruct_path(current, draw)
             start.make_start()
             end.make_end()
             return True
 
         for neighbor in current.neighbors:
-            if neighbor not in visited:
-                # Water tiles that are the destination have a greater weight cost to travel to
-                temp_g_score = current.g_score + neighbor.get_weight()
+            # Check weight of destination tile
+            temp_g_score = current.g_score + neighbor.get_weight()
 
-                if temp_g_score < neighbor.g_score:
-                    neighbor.came_from = current
-                    neighbor.g_score = temp_g_score
-                    neighbor.f_score = neighbor.g_score + heuristic(neighbor, end)
-                    neighbor.tiebreaker = count
-                    count += 1
-                    open_set.put(neighbor)
+            if temp_g_score < neighbor.g_score:
+                neighbor.came_from = current
+                neighbor.g_score = temp_g_score
+                neighbor.f_score = temp_g_score + h(neighbor.get_pos(), end.get_pos())
+                if neighbor not in open_set_hash:
+                    count -= 1  # Priority queue f score ties will be dealt with in a LIFO manner
+                    open_set.put((neighbor.f_score, count, neighbor))
+                    open_set_hash.add(neighbor)
                     neighbor.make_open()
 
         draw()
@@ -346,23 +343,27 @@ def run_ye(win, width, height, ROWS, COLS, barriers, water, num_grids):
                 if event.key == pygame.K_1 and start and end:
                     if num_grids == 1:
                         set_neighbors(grid_list[0])
-                        astar(lambda: draw(win, grid_list, ROWS, COLS, partial_width, height), starts[0], ends[0])
+                        astar(lambda: draw(win, grid_list, ROWS, COLS, partial_width, height), starts[0],
+                              ends[0])
                     else:  # Time it if there are 2 grids
                         global time_astar
                         start_time = time.perf_counter()
                         set_neighbors(grid_list[0])
-                        astar(lambda: draw(win, grid_list, ROWS, COLS, partial_width, height), starts[0], ends[0])
+                        astar(lambda: draw(win, grid_list, ROWS, COLS, partial_width, height), starts[0],
+                              ends[0])
                         end_time = time.perf_counter()
                         time_astar = end_time - start_time
                 if event.key == pygame.K_2 and start and end:
                     if num_grids == 1:
                         set_neighbors(grid_list[0])
-                        dijkstra(lambda: draw(win, grid_list, ROWS, COLS, partial_width, height), starts[0], ends[0])
+                        dijkstra(lambda: draw(win, grid_list, ROWS, COLS, partial_width, height),
+                                 starts[0], ends[0])
                     else:
                         global time_dijkstra
                         start_time = time.perf_counter()
                         set_neighbors(grid_list[1])
-                        dijkstra(lambda: draw(win, grid_list, ROWS, COLS, partial_width, height), starts[1], ends[1])
+                        dijkstra(lambda: draw(win, grid_list, ROWS, COLS, partial_width, height),
+                                 starts[1], ends[1])
                         end_time = time.perf_counter()
                         time_dijkstra = end_time - start_time
                 if event.key == pygame.K_BACKSPACE:
