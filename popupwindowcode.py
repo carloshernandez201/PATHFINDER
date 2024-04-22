@@ -24,7 +24,6 @@ HOVER_COLOR = (65, 105, 225)
 WIN = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Choose Grid Size")
 
-
 def draw_text(text, font, color, surface, x, y, center=True):
     textobj = font.render(text, 1, color)
     textrect = textobj.get_rect()
@@ -101,13 +100,45 @@ def switch_to_board(grid_rows, grid_cols, barriers, water, num_grids):
     initialize_start_screen(WIN)
 
 
+def displayTimeElapsed():
+    running = True
+    time_dijkstra = ye.time_dijkstra
+    time_astar = ye.time_astar
+    WIN.fill(GRAY)
+    text = f"Time A*: {time_astar}  |  Time Dijkstra: {time_dijkstra}"
+    draw_text(text, FONT_BIG,
+              BLACK, WIN,
+              WIDTH // 2,
+              HEIGHT // 2)
+    text2 = f"Press Backspace to return to main menu."
+    draw_text(text2, FONT_BIG,
+              BLACK, WIN,
+              WIDTH // 2,
+              HEIGHT // 2 + HEIGHT // 8)
+    pygame.display.flip()
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_BACKSPACE:
+                    running = False
+                    initialize_start_screen(WIN)
+                    ye.time_dijkstra = 0
+                    ye.time_astar = 0
+
+
+
+
 def initialize_start_screen(win):
-    global about_button, random_button, small_button, large_button, double_button, barriers_button, water_button
+    global about_button, random_button, small_button, large_button, double_button_small, double_button_large, barriers_button, water_button
     about_button = Button(BUTTON_COLOR, 600, 650, 300, 100, 'About Our Program')
     random_button = Button(BUTTON_COLOR, 600, 500, 300, 100, 'Random Barriers (54x96)')
     small_button = Button(BUTTON_COLOR, 450, 300, 250, 100, 'Small (36x64)')
     large_button = Button(BUTTON_COLOR, 800, 300, 250, 100, 'Large (108x192)')
-    double_button = Button(BUTTON_COLOR, 1000, 500, 400, 100, 'Side by Side (108x90) (108x90)')
+    double_button_small = Button(BUTTON_COLOR, 1000, 500, 400, 100, 'Side by Side (54x45) (54x45)')
+    double_button_large = Button(BUTTON_COLOR, 1000, 700, 400, 100, 'Side by Side (108x90) (108x90)')
     barriers_button = ToggleButton(BUTTON_COLOR, 100, 400, 250, 100, 'Toggle Barriers')
     water_button = ToggleButton(BUTTON_COLOR, 100, 540, 250, 100, 'Toggle Water')
     win.fill(GRAY)
@@ -136,8 +167,12 @@ def main():
                     switch_to_board(36, 64, barriers_button.enabled, water_button.enabled, 1)
                 elif large_button.is_hovered(pos):
                     switch_to_board(108, 192, barriers_button.enabled, water_button.enabled, 1)
-                elif double_button.is_hovered(pos):
+                elif double_button_small.is_hovered(pos):
+                    switch_to_board(54, 45, barriers_button.enabled, water_button.enabled, 2)
+                    displayTimeElapsed()
+                elif double_button_large.is_hovered(pos):
                     switch_to_board(108, 90, barriers_button.enabled, water_button.enabled, 2)
+                    displayTimeElapsed()
                 elif about_button.is_hovered(pos):
                     messagebox.showinfo('About', 'Dijkstra\'s algorithm and A* are both pathfinding '
                                                  'algorithms used in graph traversal. Dijkstra\'s guarantees the shortest'
@@ -157,7 +192,8 @@ def main():
         random_button.draw(WIN)
         small_button.draw(WIN)
         large_button.draw(WIN)
-        double_button.draw(WIN)
+        double_button_small.draw(WIN)
+        double_button_large.draw(WIN)
         barriers_button.draw(WIN)
         water_button.draw(WIN)
 

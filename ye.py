@@ -1,6 +1,8 @@
 import random
 import sys
 import pygame
+import time
+import copy
 from queue import PriorityQueue
 
 WIDTH = 1728
@@ -26,6 +28,9 @@ DARK_GREEN = (0, 100, 0)
 DARK_RED = (139, 0, 0)
 DARK_PURPLE = (75, 0, 130)
 
+# Global time variables to be used in popupwindowcode.py
+time_dijkstra = 0
+time_astar = 0
 
 class Spot:
     default_color = WHITE
@@ -129,7 +134,7 @@ class WaterSpot(Spot):
         self.color = DARK_PURPLE
 
 
-def make_grid(rows, cols, width, height, water_enabled, x_offset=0):
+def make_grid(rows, cols, width, height, water_enabled):
     rand_max = 0
     if water_enabled:
         rand_max = 1
@@ -138,7 +143,7 @@ def make_grid(rows, cols, width, height, water_enabled, x_offset=0):
     for i in range(rows):
         grid.append([])
         for j in range(cols):  # Use cols for the inner loop
-            x_position = x_offset + j * gap
+            x_position = j * gap
             if random.randint(0, rand_max) == 1:
                 spot = WaterSpot(i, j, x_position, gap, rows, cols)
             else:
@@ -211,11 +216,12 @@ def pathfind(draw, start, end, heuristic):
                     # Reset to the initial start screen when backspace is pressed
                     return False
 
-        # Take the minimum weight cost tile from the current priority queue
+        # Take the minimum f score tile from the current priority queue
         current = open_set.get()
         visited.add(current)
 
         if current == end:
+            print(current.g_score)
             reconstruct_path(current, draw)
             start.make_start()
             end.make_end()
@@ -223,8 +229,8 @@ def pathfind(draw, start, end, heuristic):
 
         for neighbor in current.neighbors:
             if neighbor not in visited:
-                # If the source tile or the destination tile has a greater weight, then their edge has greater weight
-                temp_g_score = current.g_score + max(current.weight, neighbor.weight)
+                # Water tiles that are the destination have a greater weight cost to travel to
+                temp_g_score = current.g_score + neighbor.get_weight()
 
                 if temp_g_score < neighbor.g_score:
                     neighbor.came_from = current
@@ -257,18 +263,32 @@ def set_neighbors(grid):
             spot.update_neighbors(grid)
 
 
+def update_grid_x_positions(grid, offset):
+    for row in grid:
+        for spot in row:
+            spot.x += offset
+
+
 def run_ye(win, width, height, ROWS, COLS, barriers, water, num_grids):
     grid_list = []
     partial_width = width // num_grids
-    minRandInt = min(ROWS, COLS) // 3
+    min_rand_int = min(ROWS, COLS) // 3
     starts = []
     ends = []
 
-    end_tile_row = random.randint(minRandInt, ROWS - 1)
-    end_tile_col = random.randint(minRandInt, COLS - 1)
+    end_tile_row = random.randint(min_rand_int, ROWS - 1)
+    end_tile_col = random.randint(min_rand_int, COLS - 1)
+
+    # Create the original grid
+    core_grid = make_grid(ROWS, COLS, partial_width, height, water)
+
+    # Use deepcopy to create independent copies of the grid for each board
     for i in range(num_grids):
         x_offset = i * partial_width
-        grid_list.append(make_grid(ROWS, COLS, partial_width, height, water, x_offset))
+        copied_grid = copy.deepcopy(core_grid)
+        grid_list.append(copied_grid)
+        update_grid_x_positions(grid_list[i], x_offset)
+
         start = grid_list[i][0][0]  # Top-left corner
         start.make_start()
         end = grid_list[i][end_tile_row][end_tile_col]
@@ -324,15 +344,27 @@ def run_ye(win, width, height, ROWS, COLS, barriers, water, num_grids):
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1 and start and end:
-                    set_neighbors(grid_list[0])
-                    astar(lambda: draw(win, grid_list, ROWS, COLS, partial_width, height), starts[0], ends[0])
+                    if num_grids == 1:
+                        set_neighbors(grid_list[0])
+                        astar(lambda: draw(win, grid_list, ROWS, COLS, partial_width, height), starts[0], ends[0])
+                    else:  # Time it if there are 2 grids
+                        global time_astar
+                        start_time = time.perf_counter()
+                        set_neighbors(grid_list[0])
+                        astar(lambda: draw(win, grid_list, ROWS, COLS, partial_width, height), starts[0], ends[0])
+                        end_time = time.perf_counter()
+                        time_astar = end_time - start_time
                 if event.key == pygame.K_2 and start and end:
                     if num_grids == 1:
                         set_neighbors(grid_list[0])
                         dijkstra(lambda: draw(win, grid_list, ROWS, COLS, partial_width, height), starts[0], ends[0])
                     else:
+                        global time_dijkstra
+                        start_time = time.perf_counter()
                         set_neighbors(grid_list[1])
                         dijkstra(lambda: draw(win, grid_list, ROWS, COLS, partial_width, height), starts[1], ends[1])
+                        end_time = time.perf_counter()
+                        time_dijkstra = end_time - start_time
                 if event.key == pygame.K_BACKSPACE:
                     # Reset to the initial start screen when backspace is pressed
                     run = False
