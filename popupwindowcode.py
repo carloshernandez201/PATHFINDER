@@ -1,6 +1,6 @@
 import pygame
 import sys
-import Algorithms
+import AlgorithmCode
 from tkinter import *
 from tkinter import messagebox
 
@@ -96,14 +96,14 @@ def switch_to_board(grid_rows, grid_cols, barriers, water, num_grids):
               HEIGHT // 2)
     pygame.display.flip()
     pygame.time.wait(2000)
-    Algorithms.run_ye(WIN, WIDTH, HEIGHT, grid_rows, grid_cols, barriers, water, num_grids)
+    AlgorithmCode.run_ye(WIN, WIDTH, HEIGHT, grid_rows, grid_cols, barriers, water, num_grids)
     initialize_start_screen(WIN)
 
 
 def displayTimeElapsed():
     running = True
-    time_dijkstra = Algorithms.time_dijkstra
-    time_astar = Algorithms.time_astar
+    time_dijkstra = AlgorithmCode.time_dijkstra
+    time_astar = AlgorithmCode.time_astar
     WIN.fill(GRAY)
     text = f"Time A*: {time_astar}  |  Time Dijkstra: {time_dijkstra}"
     draw_text(text, FONT_BIG,
@@ -125,8 +125,8 @@ def displayTimeElapsed():
                 if event.key == pygame.K_BACKSPACE:
                     running = False
                     initialize_start_screen(WIN)
-                    Algorithms.time_dijkstra = 0
-                    Algorithms.time_astar = 0
+                    AlgorithmCode.time_dijkstra = 0
+                    AlgorithmCode.time_astar = 0
 
 
 
